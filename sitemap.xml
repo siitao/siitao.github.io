@@ -1,39 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
+
+    
   <url>
     <loc>http://siitao.cn/2015/10/15/python_zabbix/</loc>
     <lastmod>2016-07-13T03:29:56.000Z</lastmod>
-  </url>
-  
+    <data>
+        <display>
+        <title>python调用zabbix接口</title>
+        <pubTime>2015-10-15T07:40:08.000Z</pubTime>
+        
+        <tag>api </tag>
+         
+        <tag>python </tag>
+         
+        <tag>zabbix </tag>
+         
+         
+           
+             
+              <breadCrumb title="python" url="http://siitao.cn/categories/python/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
   <url>
     <loc>http://siitao.cn/2016/07/10/github+hexo/</loc>
-    <lastmod>2016-07-10T15:49:18.000Z</lastmod>
-  </url>
-  
+    <lastmod>2016-07-10T15:57:15.000Z</lastmod>
+    <data>
+        <display>
+        <title>hexo+github部署博客</title>
+        <pubTime>2016-07-10T15:57:15.000Z</pubTime>
+        
+        <tag>github </tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
   <url>
     <loc>http://siitao.cn/2015/10/19/Markdown/</loc>
     <lastmod>2015-10-19T10:48:40.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://siitao.cn/categories/index.html</loc>
-    <lastmod>2015-10-16T07:09:14.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://siitao.cn/tags/index.html</loc>
-    <lastmod>2015-10-16T06:41:38.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://siitao.cn/about/index.html</loc>
-    <lastmod>2015-10-16T06:35:51.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://siitao.cn/blogroll/index.html</loc>
-    <lastmod>2015-10-15T06:55:05.000Z</lastmod>
-  </url>
-  
+    <data>
+        <display>
+        <title>Markdown简单使用</title>
+        <pubTime>2015-10-19T04:05:59.000Z</pubTime>
+        
+        <tag>markdown </tag>
+         
+         
+           
+             
+              <breadCrumb title="markdown" url="http://siitao.cn/categories/markdown/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+    
 </urlset>
