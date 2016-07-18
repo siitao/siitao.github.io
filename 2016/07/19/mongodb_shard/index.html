@@ -52,30 +52,39 @@
 
 
 <meta name="description" content="一、简介1.分片的目的高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.
-MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分分片类型
+MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分
+
+分片类型
+
 以范围为基础的分片
 基于哈希的分片 MongoDB 2.4及以上才支持哈希片键
-2.基于范围的分片方式与基于哈希的分">
+2.基于范围的分片方式与基于哈">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MongoDB 分片">
 <meta property="og:url" content="http://siitao.cn/2016/07/19/mongodb_shard/index.html">
 <meta property="og:site_name" content="Tao's Blog">
 <meta property="og:description" content="一、简介1.分片的目的高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.
-MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分分片类型
+MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分
+
+分片类型
+
 以范围为基础的分片
 基于哈希的分片 MongoDB 2.4及以上才支持哈希片键
-2.基于范围的分片方式与基于哈希的分">
+2.基于范围的分片方式与基于哈">
 <meta property="og:image" content="http://docs.mongoing.com/manual-zh/_images/sharding-splitting.png">
 <meta property="og:image" content="http://docs.mongoing.com/manual-zh/_images/sharding-migrating.png">
 <meta property="og:image" content="http://docs.mongoing.com/manual-zh/_images/sharded-cluster-production-architecture.png">
-<meta property="og:updated_time" content="2016-07-18T21:28:37.000Z">
+<meta property="og:updated_time" content="2016-07-18T21:37:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MongoDB 分片">
 <meta name="twitter:description" content="一、简介1.分片的目的高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.
-MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分分片类型
+MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分
+
+分片类型
+
 以范围为基础的分片
 基于哈希的分片 MongoDB 2.4及以上才支持哈希片键
-2.基于范围的分片方式与基于哈希的分">
+2.基于范围的分片方式与基于哈">
 
 
 
@@ -257,7 +266,7 @@ MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2016-07-19T05:28:37+08:00" content="2016-07-19">
+            <time itemprop="dateCreated" datetime="2016-07-19T05:37:10+08:00" content="2016-07-19">
               2016-07-19
             </time>
           </span>
@@ -304,7 +313,10 @@ MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过
 
       
         <span itemprop="articleBody"><h1 id="一、简介">一、简介</h1><h4 id="1-分片的目的">1.分片的目的</h4><p>高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.</p>
-<p>MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分<br>分片类型</p>
+<p>MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分</p>
+<ul>
+<li><strong>分片类型</strong></li>
+</ul>
 <p>以范围为基础的分片</p>
 <p>基于哈希的分片 MongoDB 2.4及以上才支持哈希片键</p>
 <h4 id="2-基于范围的分片方式与基于哈希的分片方式性能对比">2.基于范围的分片方式与基于哈希的分片方式性能对比</h4><p>基于范围的分片方式提供了更高效的范围查询,给定一个片键的范围,分发路由可以很简单地确定哪个数据块存储了请求需要的数据,并将请求转发到相应的分片中.</p>
