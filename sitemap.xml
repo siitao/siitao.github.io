@@ -3,6 +3,23 @@
 
     
   <url>
+    <loc>http://siitao.cn/2016/07/19/github+hexo/</loc>
+    <lastmod>2016-07-18T21:45:04.000Z</lastmod>
+    <data>
+        <display>
+        <title>hexo+github部署博客</title>
+        <pubTime>2016-07-18T21:45:04.000Z</pubTime>
+        
+        <tag>github </tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://siitao.cn/2016/07/19/mongodb_shard/</loc>
     <lastmod>2016-07-18T21:39:48.000Z</lastmod>
     <data>
@@ -41,23 +58,6 @@
              
               <breadCrumb title="python" url="http://siitao.cn/categories/python/"/>
           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://siitao.cn/2016/07/10/github+hexo/</loc>
-    <lastmod>2016-07-10T15:57:15.000Z</lastmod>
-    <data>
-        <display>
-        <title>hexo+github部署博客</title>
-        <pubTime>2016-07-10T15:57:15.000Z</pubTime>
-        
-        <tag>github </tag>
-         
-         
-           
         </display>
     </data>
     </url>
