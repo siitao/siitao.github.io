@@ -1,0 +1,779 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="mongodb," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="一、简介1.分片的目的高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.
+MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分分片类型
+以范围为基础的分片
+基于哈希的分片 MongoDB 2.4及以上才支持哈希片键
+2.基于范围的分片方式与基于哈希的分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MongoDB 分片">
+<meta property="og:url" content="http://siitao.cn/2016/07/19/mongodb_shard/index.html">
+<meta property="og:site_name" content="Tao's Blog">
+<meta property="og:description" content="一、简介1.分片的目的高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.
+MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分分片类型
+以范围为基础的分片
+基于哈希的分片 MongoDB 2.4及以上才支持哈希片键
+2.基于范围的分片方式与基于哈希的分">
+<meta property="og:image" content="http://docs.mongoing.com/manual-zh/_images/sharding-splitting.png">
+<meta property="og:image" content="http://docs.mongoing.com/manual-zh/_images/sharding-migrating.png">
+<meta property="og:image" content="http://docs.mongoing.com/manual-zh/_images/sharded-cluster-production-architecture.png">
+<meta property="og:updated_time" content="2016-07-18T21:28:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MongoDB 分片">
+<meta name="twitter:description" content="一、简介1.分片的目的高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.
+MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分分片类型
+以范围为基础的分片
+基于哈希的分片 MongoDB 2.4及以上才支持哈希片键
+2.基于范围的分片方式与基于哈希的分">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> MongoDB 分片 | Tao's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?dbb5ce8f35781071c6ecf6356b00aede";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Tao's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">不以物喜，不以己悲。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'Y9yVxfU4G7Ry17XXWDN6','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                MongoDB 分片
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-07-19T05:28:37+08:00" content="2016-07-19">
+              2016-07-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/mongodb/" itemprop="url" rel="index">
+                    <span itemprop="name">mongodb</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/19/mongodb_shard/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/19/mongodb_shard/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="一、简介">一、简介</h1><h4 id="1-分片的目的">1.分片的目的</h4><p>高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.</p>
+<p>MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分<br>分片类型</p>
+<p>以范围为基础的分片</p>
+<p>基于哈希的分片 MongoDB 2.4及以上才支持哈希片键</p>
+<h4 id="2-基于范围的分片方式与基于哈希的分片方式性能对比">2.基于范围的分片方式与基于哈希的分片方式性能对比</h4><p>基于范围的分片方式提供了更高效的范围查询,给定一个片键的范围,分发路由可以很简单地确定哪个数据块存储了请求需要的数据,并将请求转发到相应的分片中.</p>
+<p>不过,基于范围的分片会导致数据在不同分片上的不均衡,有时候,带来的消极作用会大于查询性能的积极作用.比如,如果片键所在的字段是线性增长的,一定时间内的所有请求都会落到某个固定的数据块中,最终导致分布在同一个分片中.在这种情况下,一小部分分片承载了集群大部分的数据,系统并不能很好地进行扩展.</p>
+<p>与此相比,基于哈希的分片方式以范围查询性能的损失为代价,保证了集群中数据的均衡.哈希值的随机性使数据随机分布在每个数据块中,因此也随机分布在不同分片中.但是也正由于随机性,一个范围查询很难确定应该请求哪些分片,通常为了返回需要的结果,需要请求所有分片.</p>
+<h4 id="3-数据均衡的维护">3.数据均衡的维护</h4><p>MongoBD使用两个过程维护集群中数据的均衡:分裂和均衡器.</p>
+<ul>
+<li><strong>分裂</strong><br>设定的数据块大小 <sharding-chunk-size>超过设定值时将数据一分为二<br><img src="http://docs.mongoing.com/manual-zh/_images/sharding-splitting.png" alt="image"><a id="more"></a></sharding-chunk-size></li>
+<li><strong>均衡</strong><br>数据块最多的分片迁移到数据块最少的分片上直到均衡为止<br><img src="http://docs.mongoing.com/manual-zh/_images/sharding-migrating.png" alt="image"> </li>
+</ul>
+<h4 id="4-在集群中增加或者删除分片">4.在集群中增加或者删除分片</h4><p>在集群中增加分片时,由于新的分片上并没有数据块,会造成数据的不均衡.此时MongoDB会立即开始向新分片迁移数据,集群达到数据均衡的状态需要花费一些时间.</p>
+<p>当删除一个分片时,均衡器需要将被删除的分片上的数据全部迁移到其他分片上,在全部迁移结束且元信息更新完毕之后,你可以安全地将这个分片移除.</p>
+<h4 id="5-分片集群组件">5.分片集群组件</h4><p>一个使用了分片的集群包括分片服务器,配置服务器与路由服务器( mongos ) 三个组成部分</p>
+<ul>
+<li><strong>配置服务器</strong><br>Config Servers就是用来存储：所有shard节点的配置信息、每个chunk的shard key范围、chunk在各shard的分布情况、该集群中所有DB和collection的sharding配置信息</li>
+<li><strong>两个或多个复制集</strong><br>即存储实际数据的分片，每个Shard可以是一个mongod实例，也可以是一组mongod实例构成的Replication Set。为了实现每个Shard内部的auto-failover(自动故障切换)，MongoDB官方建议每个Shard为一组Replica Set</li>
+<li><strong>一个或多个mongos</strong><br>这是一个前端路由，客户端由此接入，然后询问Config Servers需要到哪个Shard上查询或保存记录，再连接相应的Shard进行操作，最后将结果返回给客户端。客户端只需要将原本发给mongod的查询或更新请求原封不动地发给Routing Process，而不必关心所操作的记录存储在哪个Shard上。（所有操作在mongos上操作即可）<br><img src="http://docs.mongoing.com/manual-zh/_images/sharded-cluster-production-architecture.png" alt="image"></li>
+</ul>
+<h1 id="二、部署一个分片集群服务器">二、部署一个分片集群服务器</h1><h4 id="1-先部署三个复制集">1.先部署三个复制集</h4><p>128,129,130上操作<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">rePset</span></span><br><span class="line"><span class="tag">shard1</span><span class="pseudo">:192</span><span class="class">.168</span><span class="class">.222</span><span class="class">.128</span><span class="pseudo">:27017</span>,192<span class="class">.168</span><span class="class">.222</span><span class="class">.129</span><span class="pseudo">:27017</span>,192<span class="class">.168</span><span class="class">.222</span><span class="class">.130</span><span class="pseudo">:27017</span></span><br><span class="line"><span class="tag">shard2</span><span class="pseudo">:192</span><span class="class">.168</span><span class="class">.222</span><span class="class">.128</span><span class="pseudo">:27018</span>,192<span class="class">.168</span><span class="class">.222</span><span class="class">.129</span><span class="pseudo">:27018</span>,192<span class="class">.168</span><span class="class">.222</span><span class="class">.130</span><span class="pseudo">:27018</span></span><br><span class="line"><span class="tag">shard3</span><span class="pseudo">:192</span><span class="class">.168</span><span class="class">.222</span><span class="class">.128</span><span class="pseudo">:27019</span>,192<span class="class">.168</span><span class="class">.222</span><span class="class">.129</span><span class="pseudo">:27019</span>,192<span class="class">.168</span><span class="class">.222</span><span class="class">.130</span><span class="pseudo">:27019</span></span><br><span class="line"><span class="tag">Config</span></span><br><span class="line"><span class="tag">config1</span><span class="pseudo">:192</span><span class="class">.168</span><span class="class">.222</span><span class="class">.128</span><span class="pseudo">:2000</span></span><br><span class="line"><span class="tag">config2</span><span class="pseudo">:192</span><span class="class">.168</span><span class="class">.222</span><span class="class">.129</span><span class="pseudo">:2000</span></span><br><span class="line"><span class="tag">config3</span><span class="pseudo">:192</span><span class="class">.168</span><span class="class">.222</span><span class="class">.130</span><span class="pseudo">:2000</span></span><br><span class="line"><span class="tag">mongos</span></span><br><span class="line"><span class="rule"><span class="attribute">mongos</span>:<span class="value"><span class="number">192.157</span>.<span class="number">222.130</span>:<span class="number">30000</span></span></span></span><br></pre></td></tr></table></figure></p>
+<p>创建目录<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mkdir</span> -p /<span class="keyword">var</span>/<span class="keyword">log</span>/mongodb/&#123;shard1,shard2,shard3,config&#125;</span><br><span class="line"><span class="keyword">mkdir</span> -p /usr/<span class="keyword">local</span>/mongodb/&#123;shard1,shard2,shard3,config&#125;</span><br></pre></td></tr></table></figure></p>
+<p>shard1.conf<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">systemLog</span>:</span><br><span class="line">       <span class="attribute">destination</span>: file</span><br><span class="line">       <span class="attribute">path</span>: <span class="string">"/var/log/mongodb/shard1/shard1.log"</span></span><br><span class="line">       <span class="attribute">logAppend</span>: true</span><br><span class="line">    <span class="attribute">storage</span>:</span><br><span class="line">       <span class="attribute">dbPath</span>: /usr/local/mongodb/shard1</span><br><span class="line">       <span class="attribute">journal</span>:</span><br><span class="line">          <span class="attribute">enabled</span>: true</span><br><span class="line">    <span class="attribute">net</span>:</span><br><span class="line">       <span class="attribute">bindIp</span>: <span class="number">192.168</span>.<span class="number">222.128</span>  #更改成相应IP</span><br><span class="line">       <span class="attribute">port</span>: <span class="number">27017</span></span><br><span class="line">    <span class="attribute">replication</span>:</span><br><span class="line">       <span class="attribute">oplogSizeMB</span>: <span class="number">100</span></span><br><span class="line">       <span class="attribute">replSetName</span>: shard1</span><br><span class="line">    <span class="attribute">processManagement</span>:</span><br><span class="line">       <span class="attribute">fork</span>: true</span><br><span class="line">    <span class="attribute">setParameter</span>:</span><br><span class="line">       <span class="attribute">enableLocalhostAuthBypass</span>: false</span><br></pre></td></tr></table></figure></p>
+<p>shard2.conf<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">systemLog</span>:</span><br><span class="line">       <span class="attribute">destination</span>: file</span><br><span class="line">       <span class="attribute">path</span>: <span class="string">"/var/log/mongodb/shard2/shard2.log"</span></span><br><span class="line">       <span class="attribute">logAppend</span>: true</span><br><span class="line">    <span class="attribute">storage</span>:</span><br><span class="line">       <span class="attribute">dbPath</span>: /usr/local/mongodb/shard2</span><br><span class="line">       <span class="attribute">journal</span>:</span><br><span class="line">          <span class="attribute">enabled</span>: true</span><br><span class="line">    <span class="attribute">net</span>:</span><br><span class="line">       <span class="attribute">bindIp</span>: <span class="number">192.168</span>.<span class="number">222.128</span>  #更改成相应IP</span><br><span class="line">       <span class="attribute">port</span>: <span class="number">27018</span></span><br><span class="line">    <span class="attribute">replication</span>:</span><br><span class="line">       <span class="attribute">oplogSizeMB</span>: <span class="number">100</span></span><br><span class="line">       <span class="attribute">replSetName</span>: shard1</span><br><span class="line">    <span class="attribute">processManagement</span>:</span><br><span class="line">       <span class="attribute">fork</span>: true</span><br><span class="line">    <span class="attribute">setParameter</span>:</span><br><span class="line">       <span class="attribute">enableLocalhostAuthBypass</span>: false</span><br></pre></td></tr></table></figure></p>
+<p>shard3.conf<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">systemLog</span>:</span><br><span class="line">       <span class="attribute">destination</span>: file</span><br><span class="line">       <span class="attribute">path</span>: <span class="string">"/var/log/mongodb/shard3/shard3.log"</span></span><br><span class="line">       <span class="attribute">logAppend</span>: true</span><br><span class="line">    <span class="attribute">storage</span>:</span><br><span class="line">       <span class="attribute">dbPath</span>: /usr/local/mongodb/shard3</span><br><span class="line">       <span class="attribute">journal</span>:</span><br><span class="line">          <span class="attribute">enabled</span>: true</span><br><span class="line">    <span class="attribute">net</span>:</span><br><span class="line">       <span class="attribute">bindIp</span>: <span class="number">192.168</span>.<span class="number">222.128</span>  #更改成相应IP</span><br><span class="line">       <span class="attribute">port</span>: <span class="number">27019</span></span><br><span class="line">    <span class="attribute">replication</span>:</span><br><span class="line">       <span class="attribute">oplogSizeMB</span>: <span class="number">100</span></span><br><span class="line">       <span class="attribute">replSetName</span>: shard1</span><br><span class="line">    <span class="attribute">processManagement</span>:</span><br><span class="line">       <span class="attribute">fork</span>: true</span><br><span class="line">    <span class="attribute">setParameter</span>:</span><br><span class="line">       <span class="attribute">enableLocalhostAuthBypass</span>: false</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-部署配置服务器">2.部署配置服务器</h4><p>128,129,130上操作<br>confog.conf</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">configsvr = <span class="literal">true</span></span><br><span class="line">    dbpath = /usr/local/mongodb/config1</span><br><span class="line">    logpath = /var/<span class="built_in">log</span>/mongodb/config/config.<span class="built_in">log</span></span><br><span class="line">    bind_ip = <span class="number">192.168</span><span class="number">.222</span><span class="number">.128</span>               <span class="preprocessor">#ip做相应更改</span></span><br><span class="line">    port = <span class="number">2000</span></span><br><span class="line">    logappend = <span class="literal">true</span></span><br><span class="line">    fork = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<h4 id="3-mongos服务器">3.mongos服务器</h4><p>130上操作 只配置了一个mongos服务器<br>mongos.conf<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">configdb = <span class="number">192.168</span><span class="number">.222</span><span class="number">.128</span>:<span class="number">2000</span>,<span class="number">192.168</span><span class="number">.222</span><span class="number">.129</span>:<span class="number">2000</span>,<span class="number">192.168</span><span class="number">.222</span><span class="number">.130</span>:<span class="number">2000</span>   <span class="preprocessor">#写上三个config服务器的地址和端口</span></span><br><span class="line">    bind_ip = <span class="number">192.168</span><span class="number">.222</span><span class="number">.130</span></span><br><span class="line">    port = <span class="number">30000</span></span><br><span class="line">    logpath = /var/<span class="built_in">log</span>/mongodb/mongos.<span class="built_in">log</span></span><br><span class="line">    logappend = <span class="literal">true</span></span><br><span class="line">    fork = <span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="4-启动所有配置">4.启动所有配置</h4><p>略：</p>
+<h4 id="5-配置shard_cluster">5.配置shard cluster</h4><p>登录mongos</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo --host=<span class="number">192.168</span><span class="number">.222</span><span class="number">.130</span> --port=<span class="number">30000</span></span><br></pre></td></tr></table></figure>
+<p>将复制集加入分片</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; use admin</span><br><span class="line">switched <span class="keyword">to</span> db admin</span><br><span class="line">mongos&gt; db.runCommand(&#123;addshard:<span class="string">"shard1/192.168.222.128:27017,192.168.222.129:27017,192.168.222.130:27017"</span>&#125;)</span><br><span class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"shard1"</span>, <span class="string">"ok"</span> : <span class="number">1</span> &#125;</span><br><span class="line">mongos&gt; db.runCommand(&#123;addshard:<span class="string">"shard2/192.168.222.128:27018,192.168.222.129:27018,192.168.222.130:27018"</span>&#125;)</span><br><span class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"shard2"</span>, <span class="string">"ok"</span> : <span class="number">1</span> &#125;</span><br><span class="line">mongos&gt; db.runCommand(&#123;addshard:<span class="string">"shard3/192.168.222.128:27019,192.168.222.129:27019,192.168.222.130:27019"</span>&#125;)</span><br><span class="line">&#123; <span class="string">"shardAdded"</span> : <span class="string">"shard3"</span>, <span class="string">"ok"</span> : <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>列出分片</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; db.runCommand(&#123;listshards:<span class="number">1</span>&#125;)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"shards"</span> : [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"_id"</span> : <span class="string">"shard1"</span>,</span><br><span class="line">            <span class="string">"host"</span> : <span class="string">"shard1/192.168.222.128:27017,192.168.222.129:27017,192.168.222.130:27017"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"_id"</span> : <span class="string">"shard2"</span>,</span><br><span class="line">            <span class="string">"host"</span> : <span class="string">"shard2/192.168.222.128:27018,192.168.222.129:27018,192.168.222.130:27018"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"_id"</span> : <span class="string">"shard3"</span>,</span><br><span class="line">            <span class="string">"host"</span> : <span class="string">"shard3/192.168.222.128:27019,192.168.222.129:27019,192.168.222.130:27019"</span></span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="string">"ok"</span> : <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>激活数据库分片</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; db.runCommand(&#123;enablesharding:<span class="string">"test"</span>&#125;);</span><br><span class="line">&#123; <span class="string">"ok"</span> : <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>通过以上命令，可以将数据库test的分片，数据库中的不同的collection将被存放在不同的shard上，但是同一个collection的数据仍在一个shard上，要使collection也分片，需对collection做些其他操作</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; db.runCommand(&#123;<span class="string">shardcollection:</span><span class="string">"test.data"</span>,<span class="string">key:</span>&#123;<span class="string">_id:</span><span class="number">1</span>&#125;&#125;)</span><br><span class="line">&#123; <span class="string">"collectionsharded"</span> : <span class="string">"test.data"</span>, <span class="string">"ok"</span> : <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>分片的collection只能有一个在分片key上的唯一索引，其他唯一索引不被允许</p>
+<p>查看shard信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; printShardingStatus()</span><br><span class="line">--- Sharding Status --- </span><br><span class="line">  sharding version: &#123;</span><br><span class="line">    <span class="string">"_id"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"minCompatibleVersion"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="string">"currentVersion"</span> : <span class="number">6</span>,</span><br><span class="line">    <span class="string">"clusterId"</span> : ObjectId(<span class="string">"574d409367eb553f8b4cdd4b"</span>)</span><br><span class="line">&#125;</span><br><span class="line">  shards:</span><br><span class="line">    &#123;  <span class="string">"_id"</span> : <span class="string">"shard1"</span>,  <span class="string">"host"</span> : <span class="string">"shard1/192.168.222.128:27017,192.168.222.129:27017,192.168.222.130:27017"</span> &#125;</span><br><span class="line">    &#123;  <span class="string">"_id"</span> : <span class="string">"shard2"</span>,  <span class="string">"host"</span> : <span class="string">"shard2/192.168.222.128:27018,192.168.222.129:27018,192.168.222.130:27018"</span> &#125;</span><br><span class="line">    &#123;  <span class="string">"_id"</span> : <span class="string">"shard3"</span>,  <span class="string">"host"</span> : <span class="string">"shard3/192.168.222.128:27019,192.168.222.129:27019,192.168.222.130:27019"</span> &#125;</span><br><span class="line">  balancer:</span><br><span class="line">    Currently enabled:  yes</span><br><span class="line">    Currently running:  yes</span><br><span class="line">        Balancer lock taken at Tue May <span class="number">31</span> <span class="number">2016</span> <span class="number">16</span>:<span class="number">32</span>:<span class="number">56</span> GMT+<span class="number">0800</span> (CST) by localhost.localdomain:<span class="number">30000</span>:<span class="number">1464680594</span>:<span class="number">1804289383</span>:Balancer:<span class="number">1681692777</span></span><br><span class="line">    Failed balancer rounds in last <span class="number">5</span> attempts:  <span class="number">5</span></span><br><span class="line">    Last reported error:  clock skew of the cluster <span class="number">192.168</span><span class="number">.222</span><span class="number">.128</span>:<span class="number">2000</span>,<span class="number">192.168</span><span class="number">.222</span><span class="number">.129</span>:<span class="number">2000</span>,<span class="number">192.168</span><span class="number">.222</span><span class="number">.130</span>:<span class="number">2000</span> is too far out of bounds to allow distributed locking.</span><br><span class="line">    Time of Reported error:  Mon May <span class="number">30</span> <span class="number">2016</span> <span class="number">04</span>:<span class="number">23</span>:<span class="number">02</span> GMT+<span class="number">0800</span> (CST)</span><br><span class="line">    Migration Results <span class="keyword">for</span> the last <span class="number">24</span> hours: </span><br><span class="line">        <span class="number">3</span> : Success</span><br><span class="line">  databases:</span><br><span class="line">    &#123;  <span class="string">"_id"</span> : <span class="string">"admin"</span>,  <span class="string">"partitioned"</span> : <span class="literal">false</span>,  <span class="string">"primary"</span> : <span class="string">"config"</span> &#125;</span><br><span class="line">    &#123;  <span class="string">"_id"</span> : <span class="string">"test"</span>,  <span class="string">"partitioned"</span> : <span class="literal">true</span>,  <span class="string">"primary"</span> : <span class="string">"shard1"</span> &#125;</span><br><span class="line">        test.data</span><br><span class="line">            shard key: &#123; <span class="string">"_id"</span> : <span class="number">1</span> &#125;</span><br><span class="line">            chunks:</span><br><span class="line">                shard1  <span class="number">2</span></span><br><span class="line">                shard2  <span class="number">2</span></span><br><span class="line">                shard3  <span class="number">1</span></span><br><span class="line">            &#123; <span class="string">"_id"</span> : &#123; <span class="string">"$minKey"</span> : <span class="number">1</span> &#125; &#125; --&gt;&gt; &#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d43a20a7ba8a3444c7d49"</span>) &#125; on : <span class="function">shard2 <span class="title">Timestamp</span><span class="params">(<span class="number">2</span>, <span class="number">0</span>)</span> </span><br><span class="line">            </span>&#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d43a20a7ba8a3444c7d49"</span>) &#125; --&gt;&gt; &#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d43a20a7ba8a3444c7d5d"</span>) &#125; on : <span class="function">shard3 <span class="title">Timestamp</span><span class="params">(<span class="number">3</span>, <span class="number">0</span>)</span> </span><br><span class="line">            </span>&#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d43a20a7ba8a3444c7d5d"</span>) &#125; --&gt;&gt; &#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d45f20a7ba8a3444ca807"</span>) &#125; on : <span class="function">shard1 <span class="title">Timestamp</span><span class="params">(<span class="number">4</span>, <span class="number">1</span>)</span> </span><br><span class="line">            </span>&#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d45f20a7ba8a3444ca807"</span>) &#125; --&gt;&gt; &#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d45fa0a7ba8a3444cdf93"</span>) &#125; on : <span class="function">shard1 <span class="title">Timestamp</span><span class="params">(<span class="number">3</span>, <span class="number">3</span>)</span> </span><br><span class="line">            </span>&#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"574d45fa0a7ba8a3444cdf93"</span>) &#125; --&gt;&gt; &#123; <span class="string">"_id"</span> : &#123; <span class="string">"$maxKey"</span> : <span class="number">1</span> &#125; &#125; on : <span class="function">shard2 <span class="title">Timestamp</span><span class="params">(<span class="number">4</span>, <span class="number">0</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>查看test库下data集合的状态</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; db.data.stats()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"sharded"</span> : <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">    <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">    <span class="string">"count"</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="string">"numExtents"</span> : <span class="number">11</span>,</span><br><span class="line">    <span class="string">"size"</span> : <span class="number">2160128</span>,</span><br><span class="line">    <span class="string">"storageSize"</span> : <span class="number">5595136</span>,</span><br><span class="line">    <span class="string">"totalIndexSize"</span> : <span class="number">1488032</span>,</span><br><span class="line">    <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">        <span class="string">"_id_"</span> : <span class="number">1488032</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"avgObjSize"</span> : <span class="number">48.00284444444444</span>,</span><br><span class="line">    <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"nchunks"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="string">"shards"</span> : &#123;</span><br><span class="line">        <span class="string">"shard1"</span> : &#123;</span><br><span class="line">            <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">            <span class="string">"count"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="string">"size"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="string">"avgObjSize"</span> : <span class="number">48</span>,</span><br><span class="line">            <span class="string">"numExtents"</span> : <span class="number">5</span>,</span><br><span class="line">            <span class="string">"storageSize"</span> : <span class="number">2793472</span>,</span><br><span class="line">            <span class="string">"lastExtentSize"</span> : <span class="number">2097152</span>,</span><br><span class="line">            <span class="string">"paddingFactor"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">            <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"totalIndexSize"</span> : <span class="number">825776</span>,</span><br><span class="line">            <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">                <span class="string">"_id_"</span> : <span class="number">825776</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"ok"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"$gleStats"</span> : &#123;</span><br><span class="line">                <span class="string">"lastOpTime"</span> : Timestamp(<span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">                <span class="string">"electionId"</span> : ObjectId(<span class="string">"574dc3b6dc1c96324c23b4c8"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"shard2"</span> : &#123;</span><br><span class="line">            <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">            <span class="string">"count"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="string">"size"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="string">"avgObjSize"</span> : <span class="number">48</span>,</span><br><span class="line">            <span class="string">"numExtents"</span> : <span class="number">5</span>,</span><br><span class="line">            <span class="string">"storageSize"</span> : <span class="number">2793472</span>,</span><br><span class="line">            <span class="string">"lastExtentSize"</span> : <span class="number">2097152</span>,</span><br><span class="line">            <span class="string">"paddingFactor"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">            <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"totalIndexSize"</span> : <span class="number">654080</span>,</span><br><span class="line">            <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">                <span class="string">"_id_"</span> : <span class="number">654080</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"ok"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"$gleStats"</span> : &#123;</span><br><span class="line">                <span class="string">"lastOpTime"</span> : Timestamp(<span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">                <span class="string">"electionId"</span> : ObjectId(<span class="string">"574dc3b5676822a3a76d049b"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"shard3"</span> : &#123;</span><br><span class="line">            <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">            <span class="string">"count"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="string">"size"</span> : <span class="number">0</span>,</span><br><span class="line">            <span class="string">"avgObjSize"</span> : <span class="number">48</span>,</span><br><span class="line">            <span class="string">"numExtents"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"storageSize"</span> : <span class="number">8192</span>,</span><br><span class="line">            <span class="string">"lastExtentSize"</span> : <span class="number">8192</span>,</span><br><span class="line">            <span class="string">"paddingFactor"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">            <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"totalIndexSize"</span> : <span class="number">8176</span>,</span><br><span class="line">            <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">                <span class="string">"_id_"</span> : <span class="number">8176</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"ok"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"$gleStats"</span> : &#123;</span><br><span class="line">                <span class="string">"lastOpTime"</span> : Timestamp(<span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">                <span class="string">"electionId"</span> : ObjectId(<span class="string">"574dc3b6c986165ad37eee03"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"ok"</span> : <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="6-测试分片">6.测试分片</h4><p>插入大量数据看看是否分片</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongos &gt; <span class="keyword">for</span>(i=<span class="number">0</span>;i&gt;<span class="number">50000</span>;i++) db.data.insert(&#123;<span class="string">"name"</span>:i&#125;)</span><br></pre></td></tr></table></figure>
+<p>再次查看data集合的状态</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">mongos&gt; db.data.stats()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"sharded"</span> : <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">    <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">    <span class="string">"count"</span> : <span class="number">45000</span>,</span><br><span class="line">    <span class="string">"numExtents"</span> : <span class="number">11</span>,</span><br><span class="line">    <span class="string">"size"</span> : <span class="number">2160128</span>,</span><br><span class="line">    <span class="string">"storageSize"</span> : <span class="number">5595136</span>,</span><br><span class="line">    <span class="string">"totalIndexSize"</span> : <span class="number">1488032</span>,</span><br><span class="line">    <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">        <span class="string">"_id_"</span> : <span class="number">1488032</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"avgObjSize"</span> : <span class="number">48.00284444444444</span>,</span><br><span class="line">    <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"nchunks"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="string">"shards"</span> : &#123;</span><br><span class="line">        <span class="string">"shard1"</span> : &#123;</span><br><span class="line">            <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">            <span class="string">"count"</span> : <span class="number">25142</span>,</span><br><span class="line">            <span class="string">"size"</span> : <span class="number">1206880</span>,</span><br><span class="line">            <span class="string">"avgObjSize"</span> : <span class="number">48</span>,</span><br><span class="line">            <span class="string">"numExtents"</span> : <span class="number">5</span>,</span><br><span class="line">            <span class="string">"storageSize"</span> : <span class="number">2793472</span>,</span><br><span class="line">            <span class="string">"lastExtentSize"</span> : <span class="number">2097152</span>,</span><br><span class="line">            <span class="string">"paddingFactor"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">            <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"totalIndexSize"</span> : <span class="number">825776</span>,</span><br><span class="line">            <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">                <span class="string">"_id_"</span> : <span class="number">825776</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"ok"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"$gleStats"</span> : &#123;</span><br><span class="line">                <span class="string">"lastOpTime"</span> : Timestamp(<span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">                <span class="string">"electionId"</span> : ObjectId(<span class="string">"574dc3b6dc1c96324c23b4c8"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"shard2"</span> : &#123;</span><br><span class="line">            <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">            <span class="string">"count"</span> : <span class="number">19838</span>,</span><br><span class="line">            <span class="string">"size"</span> : <span class="number">952288</span>,</span><br><span class="line">            <span class="string">"avgObjSize"</span> : <span class="number">48</span>,</span><br><span class="line">            <span class="string">"numExtents"</span> : <span class="number">5</span>,</span><br><span class="line">            <span class="string">"storageSize"</span> : <span class="number">2793472</span>,</span><br><span class="line">            <span class="string">"lastExtentSize"</span> : <span class="number">2097152</span>,</span><br><span class="line">            <span class="string">"paddingFactor"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">            <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"totalIndexSize"</span> : <span class="number">654080</span>,</span><br><span class="line">            <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">                <span class="string">"_id_"</span> : <span class="number">654080</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"ok"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"$gleStats"</span> : &#123;</span><br><span class="line">                <span class="string">"lastOpTime"</span> : Timestamp(<span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">                <span class="string">"electionId"</span> : ObjectId(<span class="string">"574dc3b5676822a3a76d049b"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"shard3"</span> : &#123;</span><br><span class="line">            <span class="string">"ns"</span> : <span class="string">"test.data"</span>,</span><br><span class="line">            <span class="string">"count"</span> : <span class="number">20</span>,</span><br><span class="line">            <span class="string">"size"</span> : <span class="number">960</span>,</span><br><span class="line">            <span class="string">"avgObjSize"</span> : <span class="number">48</span>,</span><br><span class="line">            <span class="string">"numExtents"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"storageSize"</span> : <span class="number">8192</span>,</span><br><span class="line">            <span class="string">"lastExtentSize"</span> : <span class="number">8192</span>,</span><br><span class="line">            <span class="string">"paddingFactor"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"paddingFactorNote"</span> : <span class="string">"paddingFactor is unused and unmaintained in 3.0. It remains hard coded to 1.0 for compatibility only."</span>,</span><br><span class="line">            <span class="string">"userFlags"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"capped"</span> : <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"nindexes"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"totalIndexSize"</span> : <span class="number">8176</span>,</span><br><span class="line">            <span class="string">"indexSizes"</span> : &#123;</span><br><span class="line">                <span class="string">"_id_"</span> : <span class="number">8176</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"ok"</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">"$gleStats"</span> : &#123;</span><br><span class="line">                <span class="string">"lastOpTime"</span> : Timestamp(<span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">                <span class="string">"electionId"</span> : ObjectId(<span class="string">"574dc3b6c986165ad37eee03"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"ok"</span> : <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发现50000条数据已经备份片到三个不通的复制集中</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/mongodb/" rel="tag">#mongodb</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/10/github+hexo/" rel="next" title="hexo+github部署博客">
+                <i class="fa fa-chevron-left"></i> hexo+github部署博客
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/19/mongodb_shard/"
+           data-title="MongoDB 分片" data-url="http://siitao.cn/2016/07/19/mongodb_shard/">
+      </div>
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/toutou.png" alt="涛涛" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">涛涛</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">不以物喜，不以己悲。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2765205703/profile?rightmod=1&wvr=6&mod=personinfo" target="_blank">
+                  
+                    <i class="fa fa-weibo"></i> Weibo
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/siitao" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、简介"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-分片的目的"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.分片的目的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-基于范围的分片方式与基于哈希的分片方式性能对比"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">2.基于范围的分片方式与基于哈希的分片方式性能对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-数据均衡的维护"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">3.数据均衡的维护</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-在集群中增加或者删除分片"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">4.在集群中增加或者删除分片</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-分片集群组件"><span class="nav-number">1.0.0.5.</span> <span class="nav-text">5.分片集群组件</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、部署一个分片集群服务器"><span class="nav-number">2.</span> <span class="nav-text">二、部署一个分片集群服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-先部署三个复制集"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">1.先部署三个复制集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-部署配置服务器"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2.部署配置服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-mongos服务器"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">3.mongos服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-启动所有配置"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">4.启动所有配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-配置shard_cluster"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">5.配置shard cluster</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-测试分片"><span class="nav-number">2.0.0.6.</span> <span class="nav-text">6.测试分片</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">涛涛</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"siitao"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

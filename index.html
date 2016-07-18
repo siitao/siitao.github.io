@@ -241,6 +241,118 @@
             
               
                 
+                <a class="post-title-link" href="/2016/07/19/mongodb_shard/" itemprop="url">
+                  MongoDB 分片
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-07-19T05:28:37+08:00" content="2016-07-19">
+              2016-07-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/mongodb/" itemprop="url" rel="index">
+                    <span itemprop="name">mongodb</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/19/mongodb_shard/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/19/mongodb_shard/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <h1 id="一、简介">一、简介</h1><h4 id="1-分片的目的">1.分片的目的</h4><p>高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.</p>
+<p>MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分<br>分片类型</p>
+<p>以范围为基础的分片</p>
+<p>基于哈希的分片 MongoDB 2.4及以上才支持哈希片键</p>
+<h4 id="2-基于范围的分片方式与基于哈希的分片方式性能对比">2.基于范围的分片方式与基于哈希的分片方式性能对比</h4><p>基于范围的分片方式提供了更高效的范围查询,给定一个片键的范围,分发路由可以很简单地确定哪个数据块存储了请求需要的数据,并将请求转发到相应的分片中.</p>
+<p>不过,基于范围的分片会导致数据在不同分片上的不均衡,有时候,带来的消极作用会大于查询性能的积极作用.比如,如果片键所在的字段是线性增长的,一定时间内的所有请求都会落到某个固定的数据块中,最终导致分布在同一个分片中.在这种情况下,一小部分分片承载了集群大部分的数据,系统并不能很好地进行扩展.</p>
+<p>与此相比,基于哈希的分片方式以范围查询性能的损失为代价,保证了集群中数据的均衡.哈希值的随机性使数据随机分布在每个数据块中,因此也随机分布在不同分片中.但是也正由于随机性,一个范围查询很难确定应该请求哪些分片,通常为了返回需要的结果,需要请求所有分片.</p>
+<h4 id="3-数据均衡的维护">3.数据均衡的维护</h4><p>MongoBD使用两个过程维护集群中数据的均衡:分裂和均衡器.</p>
+<ul>
+<li><strong>分裂</strong><br>设定的数据块大小 <sharding-chunk-size>超过设定值时将数据一分为二<br><img src="http://docs.mongoing.com/manual-zh/_images/sharding-splitting.png" alt="image">
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/19/mongodb_shard/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/07/10/github+hexo/" itemprop="url">
                   hexo+github部署博客
                 </a>
@@ -566,7 +678,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
