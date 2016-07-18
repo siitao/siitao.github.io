@@ -65,7 +65,7 @@
 <meta property="og:image" content="http://siitao.cn/image_pull/caozuo.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/tiaojian.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/action.png">
-<meta property="og:image" content="http://siitao.cn/image_pull/\regedit_agent.png">
+<meta property="og:image" content="http://siitao.cn/image_pull/regedit_agent.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/baojing2.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/baojing1.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/group1.png">
@@ -80,7 +80,7 @@
 <meta property="og:image" content="http://siitao.cn/image_pull/dongzuo4.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/dongzuo5.png">
 <meta property="og:image" content="http://siitao.cn/image_pull/email.png">
-<meta property="og:updated_time" content="2016-07-18T21:54:48.000Z">
+<meta property="og:updated_time" content="2016-07-18T21:57:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Zabbix 3.0安装部署">
 <meta name="twitter:description" content="一：安装lamp或者lnmp环境( php版本&amp;gt;=5.4)略
@@ -267,7 +267,7 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2016-07-19T05:54:48+08:00" content="2016-07-19">
+            <time itemprop="dateCreated" datetime="2016-07-19T05:57:18+08:00" content="2016-07-19">
               2016-07-19
             </time>
           </span>
@@ -328,7 +328,7 @@
 <p><img src="/image_pull/action.png" alt="image"></p>
 <h5 id="2:agent配置">2:agent配置</h5><p>在配置文件里面添加如下配置<br><figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">HostMetadataItem</span>=<span class="string">system.uname</span></span><br></pre></td></tr></table></figure></p>
 <p>重启agent</p>
-<p>查看server端日志如果出现如下信息表示自动注册成功并加入相应组和连接到了相应模块<br><img src="/image_pull/\regedit_agent.png" alt="image"></p>
+<p>查看server端日志如果出现如下信息表示自动注册成功并加入相应组和连接到了相应模块<br><img src="/image_pull/regedit_agent.png" alt="image"></p>
 <h3 id="三：为zabbix添加邮件报警">三：为zabbix添加邮件报警</h3><h5 id="1：编写报警脚本send_mail-py">1：编写报警脚本send_mail.py</h5><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python</span><br><span class="line"><span class="id">#coding</span>:utf-<span class="number">8</span></span><br><span class="line">import smtplib  </span><br><span class="line">import sys</span><br><span class="line">from email<span class="class">.mime</span><span class="class">.text</span> import MIMEText </span><br><span class="line"></span><br><span class="line">host = <span class="string">'smtp.163.com'</span> </span><br><span class="line">port = <span class="number">25</span>  </span><br><span class="line">sender = <span class="string">'xxxxxx@163.com'</span>  </span><br><span class="line">pwd = <span class="string">'xxxxx'</span> </span><br><span class="line">def <span class="function"><span class="title">send_mail</span><span class="params">(to,subject,msg)</span></span>:</span><br><span class="line">    msg = <span class="function"><span class="title">MIMEText</span><span class="params">(msg,<span class="string">'plain'</span>,<span class="string">'utf-8'</span>)</span></span> </span><br><span class="line">    msg[<span class="string">'subject'</span>] = subject </span><br><span class="line">    msg[<span class="string">'from'</span>] = sender </span><br><span class="line">    msg[<span class="string">'to'</span>] = to </span><br><span class="line">    try:</span><br><span class="line">        s = smtplib.<span class="function"><span class="title">SMTP</span><span class="params">(host, port)</span></span>  </span><br><span class="line">        s.<span class="function"><span class="title">login</span><span class="params">(sender, pwd)</span></span>  </span><br><span class="line">        s.<span class="function"><span class="title">sendmail</span><span class="params">(sender, to, msg.as_string()</span></span>)  </span><br><span class="line">        s.<span class="function"><span class="title">close</span><span class="params">()</span></span></span><br><span class="line">        return True</span><br><span class="line">    except Exception,e:</span><br><span class="line">        print <span class="function"><span class="title">str</span><span class="params">(e)</span></span></span><br><span class="line">        return False</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="function"><span class="title">send_mail</span><span class="params">(sys.argv[<span class="number">1</span>],sys.argv[<span class="number">2</span>],sys.argv[<span class="number">3</span>])</span></span></span><br></pre></td></tr></table></figure>
 <p>将脚本放入指定位置<br><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="keyword">local</span>/zabbix/scripts  <span class="comment">#注意脚本要有执行权限(此目录根据主配置文件AlertScriptsPath而来)</span></span><br><span class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> send_mail.py</span><br></pre></td></tr></table></figure></p>
 <h5 id="2：页面添加报警媒介">2：页面添加报警媒介</h5><p><img src="/image_pull/baojing2.png" alt="image"></p>
