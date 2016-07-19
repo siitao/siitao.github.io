@@ -218,15 +218,119 @@
 
     
     
+
+    
       
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/07/20/mongodb_shard/" itemprop="url">
+                  MongoDB 分片
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-07-20T01:52:30+08:00" content="2016-07-20">
+              2016-07-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/mongodb/" itemprop="url" rel="index">
+                    <span itemprop="name">mongodb</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/20/mongodb_shard/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/20/mongodb_shard/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
       
-        
-        
-        
       
 
       
-    
+        
+          <h1 id="一、简介">一、简介</h1><h4 id="1-分片的目的">1.分片的目的</h4><p>高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.</p>
+<p>MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分</p>
+<h4 id="分片类型">分片类型</h4><p><strong>以范围为基础的分片</strong></p>
+<p><strong>基于哈希的分片</strong> (MongoDB 2.4及以上才支持哈希片键)</p>
+<h4 id="2-基于范围的分片方式与基于哈希的分片方式性能对比">2.基于范围的分片方式与基于哈希的分片方式性能对比</h4><p>基于范围的分片方式提供了更高效的范围查询,给定一个片键的范围,分发路由可以很简单地确定哪个数据块存储了请求需要的数据,并将请求转发到相应的分片中.</p>
+<p>不过,基于范围的分片会导致数据在不同分片上的不均衡,有时候,带来的消极作用会大于查询性能的积极作用.比如,如果片键所在的字段是线性增长的,一定时间内的所有请求都会落到某个固定的数据块中,最终导致分布在同一个分片中.在这种情况下,一小部分分片承载了集群大部分的数据,系统并不能很好地进行扩展.</p>
+<p>与此相比,基于哈希的分片方式以范围查询性能的损失为代价,保证了集群中数据的均衡.哈希值的随机性使数据随机分布在每个数据块中,因此也随机分布在不同分片中.但是也正由于随机性,一个范围查询很难确定应该请求哪些分片,通常为了返回需要的结果,需要请求所有分片.</p>
+<h4 id="3-数据均衡的维护">3.数据均衡的维护</h4><p>MongoBD使用两个过程维护集群中数据的均衡:分裂和均衡器.</p>
+<ul>
+<li><strong>分裂</strong><br>设定的数据块大小 <sharding-chunk-size>超过设定值时将数据一分为二<br><img src="http://docs.mongoing.com/manual-zh/_images/sharding-splitting.png" alt="image"></li>
+<li><strong>均衡</strong><br>数据块最多的分片迁移到数据块最少的分片上直到均衡为止<br><img src="http://docs.mongoing.com/manual-zh/_images/sharding-migrating.png" alt="image">
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/20/mongodb_shard/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -313,115 +417,6 @@
 <h5 id="2：安装zabbix_server（agent安装方法一样只需要去掉–enable-server参数即可）">2：安装zabbix server（agent安装方法一样只需要去掉–enable-server参数即可）</h5><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#</span> <span class="comment">创建zabbix用户</span></span><br><span class="line"><span class="comment">useradd</span> <span class="comment">zabbix</span> <span class="literal">-</span><span class="comment">s</span> <span class="comment">/sbin/nologin</span></span><br><span class="line"><span class="comment">tar</span> <span class="comment">zxvf</span> <span class="comment">zabbix</span><span class="literal">-</span><span class="comment">3</span><span class="string">.</span><span class="comment">0</span><span class="string">.</span><span class="comment">3</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span></span><br><span class="line"><span class="comment">cd</span> <span class="comment">zabbix</span><span class="literal">-</span><span class="comment">3</span><span class="string">.</span><span class="comment">0</span><span class="string">.</span><span class="comment">3</span></span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/zabbix</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">server</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">agent</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysql</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">net</span><span class="literal">-</span><span class="comment">snmp</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">libcurl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">libxml2</span></span><br><span class="line"><span class="comment">make</span> <span class="comment">&amp;&amp;</span> <span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
           <div class="post-more-link text-center">
             <a class="btn" href="/2016/07/20/zabbix3.0_install/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/07/20/mongodb_shard/" itemprop="url">
-                  MongoDB 分片
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2016-07-20T01:49:14+08:00" content="2016-07-20">
-              2016-07-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/mongodb/" itemprop="url" rel="index">
-                    <span itemprop="name">mongodb</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/07/20/mongodb_shard/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/20/mongodb_shard/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <h1 id="一、简介">一、简介</h1><h4 id="1-分片的目的">1.分片的目的</h4><p>高数据量和吞吐量的数据库应用会对单机的性能造成较大压力,大的查询量会将单机的CPU耗尽,大的数据量对单机的存储压力较大,最终会耗尽系统的内存而将压力转移到磁盘IO上.</p>
-<p>MongoDB中数据的分片是以集合为基本单位的,集合中的数据通过 片键 被分成多部分</p>
-<h4 id="分片类型">分片类型</h4><p><strong>以范围为基础的分片</strong></p>
-<p><strong>基于哈希的分片</strong> (MongoDB 2.4及以上才支持哈希片键)</p>
-<h4 id="2-基于范围的分片方式与基于哈希的分片方式性能对比">2.基于范围的分片方式与基于哈希的分片方式性能对比</h4><p>基于范围的分片方式提供了更高效的范围查询,给定一个片键的范围,分发路由可以很简单地确定哪个数据块存储了请求需要的数据,并将请求转发到相应的分片中.</p>
-<p>不过,基于范围的分片会导致数据在不同分片上的不均衡,有时候,带来的消极作用会大于查询性能的积极作用.比如,如果片键所在的字段是线性增长的,一定时间内的所有请求都会落到某个固定的数据块中,最终导致分布在同一个分片中.在这种情况下,一小部分分片承载了集群大部分的数据,系统并不能很好地进行扩展.</p>
-<p>与此相比,基于哈希的分片方式以范围查询性能的损失为代价,保证了集群中数据的均衡.哈希值的随机性使数据随机分布在每个数据块中,因此也随机分布在不同分片中.但是也正由于随机性,一个范围查询很难确定应该请求哪些分片,通常为了返回需要的结果,需要请求所有分片.</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/07/20/mongodb_shard/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
