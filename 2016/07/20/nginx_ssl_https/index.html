@@ -35,7 +35,7 @@
 <link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="api,python,zabbix," />
+  <meta name="keywords" content="nginx," />
 
 
 
@@ -51,16 +51,16 @@
 
 
 
-<meta name="description" content="Zabbix自带很多的api，使用这些api来控制Zabbix很方便。下面就是利用python来调用api来实现更新zabbix的触发器状态。代码如下：">
+<meta name="description" content="一、简介超文本传输安全协议（英语：Hypertext Transfer Protocol Secure，缩写：HTTPS，也被称为HTTP over TLS，HTTP over SSL或HTTP Secure）是一种网络安全传输协议。在计算机网络上，HTTPS经由超文本传输协议进行通信，利用SSL/TLS来对数据包进行加密。HTTPS开发的主要目的，是提供对网络服务器的身份认证，保护交换数据的隐私">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python调用zabbix接口">
-<meta property="og:url" content="http://siitao.cn/2015/10/15/python_zabbix/index.html">
+<meta property="og:title" content="Nginx使用SSL部署HTTPS">
+<meta property="og:url" content="http://siitao.cn/2016/07/20/nginx_ssl_https/index.html">
 <meta property="og:site_name" content="Tao's Blog">
-<meta property="og:description" content="Zabbix自带很多的api，使用这些api来控制Zabbix很方便。下面就是利用python来调用api来实现更新zabbix的触发器状态。代码如下：">
-<meta property="og:updated_time" content="2016-07-13T03:29:56.000Z">
+<meta property="og:description" content="一、简介超文本传输安全协议（英语：Hypertext Transfer Protocol Secure，缩写：HTTPS，也被称为HTTP over TLS，HTTP over SSL或HTTP Secure）是一种网络安全传输协议。在计算机网络上，HTTPS经由超文本传输协议进行通信，利用SSL/TLS来对数据包进行加密。HTTPS开发的主要目的，是提供对网络服务器的身份认证，保护交换数据的隐私">
+<meta property="og:updated_time" content="2016-07-19T10:33:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python调用zabbix接口">
-<meta name="twitter:description" content="Zabbix自带很多的api，使用这些api来控制Zabbix很方便。下面就是利用python来调用api来实现更新zabbix的触发器状态。代码如下：">
+<meta name="twitter:title" content="Nginx使用SSL部署HTTPS">
+<meta name="twitter:description" content="一、简介超文本传输安全协议（英语：Hypertext Transfer Protocol Secure，缩写：HTTPS，也被称为HTTP over TLS，HTTP over SSL或HTTP Secure）是一种网络安全传输协议。在计算机网络上，HTTPS经由超文本传输协议进行通信，利用SSL/TLS来对数据包进行加密。HTTPS开发的主要目的，是提供对网络服务器的身份认证，保护交换数据的隐私">
 
 
 
@@ -72,7 +72,7 @@
   };
 </script>
 
-  <title> python调用zabbix接口 | Tao's Blog </title>
+  <title> Nginx使用SSL部署HTTPS | Tao's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -233,7 +233,7 @@
             
             
               
-                python调用zabbix接口
+                Nginx使用SSL部署HTTPS
               
             
           </h1>
@@ -242,8 +242,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2015-10-15T15:40:08+08:00" content="2015-10-15">
-              2015-10-15
+            <time itemprop="dateCreated" datetime="2016-07-20T01:39:15+08:00" content="2016-07-20">
+              2016-07-20
             </time>
           </span>
 
@@ -252,8 +252,8 @@
               &nbsp; | &nbsp; 分类于
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
+                  <a href="/categories/nginx/" itemprop="url" rel="index">
+                    <span itemprop="name">nginx</span>
                   </a>
                 </span>
 
@@ -268,8 +268,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2015/10/15/python_zabbix/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/15/python_zabbix/" itemprop="commentsCount"></span>
+                <a href="/2016/07/20/nginx_ssl_https/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/20/nginx_ssl_https/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -288,11 +288,13 @@
       
 
       
-        <span itemprop="articleBody"><blockquote>
-<p>Zabbix自带很多的api，使用这些api来控制Zabbix很方便。下面就是利用python来调用api来实现更新zabbix的触发器状态。<br>代码如下：<br><a id="more"></a></p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line">import urllib2</span><br><span class="line">import json</span><br><span class="line">import sys</span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding( <span class="string">"utf-8"</span> )</span><br><span class="line">url = <span class="string">"http://zabbix_url/zabbix/api_jsonrpc.php"</span></span><br><span class="line">header = &#123;<span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> len(sys.argv)&lt;<span class="number">4</span>:</span><br><span class="line">    <span class="built_in">print</span> <span class="string">"Please Put Avgs Like HostIp,Description,0|1(turn|off)."</span></span><br><span class="line">    sys.exit()</span><br><span class="line">    <span class="comment"># 获取token</span></span><br><span class="line">def get_auth():</span><br><span class="line">    request=urllib2.Request(url,json.dumps(</span><br><span class="line">        &#123; </span><br><span class="line">            <span class="string">'jsonrpc'</span>:<span class="string">'2.0'</span>,</span><br><span class="line">            <span class="string">'method'</span>:<span class="string">'user.login'</span>,</span><br><span class="line">            <span class="string">'params'</span>:&#123;</span><br><span class="line">                        <span class="string">'user'</span>:<span class="string">'Admin'</span>,</span><br><span class="line">                        <span class="string">'password'</span>:<span class="string">'password'</span></span><br><span class="line">                    &#125;,</span><br><span class="line">            <span class="string">'id'</span>:<span class="number">1</span></span><br><span class="line">        &#125;))</span><br><span class="line">    request.add_header(<span class="string">'Content-Type'</span>,<span class="string">'application/json'</span>)</span><br><span class="line">    response=urllib2.urlopen(request)</span><br><span class="line">    var1=json.loads(response.read())</span><br><span class="line">    session= var1[<span class="string">'result'</span>]</span><br><span class="line">    <span class="built_in">return</span> session</span><br><span class="line">    <span class="comment"># 找出指定的triggerid更改其状态</span></span><br><span class="line">def change_triggerid(host,description,number,session):</span><br><span class="line">    request = urllib2.Request(url,json.dumps(</span><br><span class="line">        &#123;</span><br><span class="line">                <span class="string">"jsonrpc"</span>:<span class="string">"2.0"</span>,</span><br><span class="line">                <span class="string">"method"</span>:<span class="string">"trigger.get"</span>,</span><br><span class="line">                <span class="string">"params"</span>:&#123;</span><br><span class="line">                            <span class="string">"output"</span>:<span class="string">"extend"</span>,</span><br><span class="line">                            <span class="string">"filter"</span>:&#123;</span><br><span class="line">                                    <span class="string">"host"</span>:host</span><br><span class="line">                                     &#125;,</span><br><span class="line">                            <span class="string">"search"</span>:&#123;</span><br><span class="line">                                    <span class="string">"description"</span>:description</span><br><span class="line">                                     &#125;</span><br><span class="line">                         &#125;,</span><br><span class="line">                <span class="string">"auth"</span>:session,</span><br><span class="line">                <span class="string">"id"</span>:<span class="number">1</span>,</span><br><span class="line">        &#125;))</span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> header:</span><br><span class="line">            request.add_header(key,header[key])</span><br><span class="line">    try:</span><br><span class="line">            result = urllib2.urlopen(request)</span><br><span class="line">    except URLError as e:</span><br><span class="line">        <span class="built_in">print</span> e</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">            response = json.loads(result.read())</span><br><span class="line">        result.close()</span><br><span class="line">        <span class="keyword">for</span> trigger <span class="keyword">in</span> response[<span class="string">'result'</span>]:</span><br><span class="line">            triggerid=trigger[<span class="string">'triggerid'</span>] </span><br><span class="line">        request = urllib2.Request(url,json.dumps(</span><br><span class="line">            &#123;</span><br><span class="line">                    <span class="string">"jsonrpc"</span>:<span class="string">"2.0"</span>,</span><br><span class="line">                    <span class="string">"method"</span>:<span class="string">"trigger.update"</span>,</span><br><span class="line">                    <span class="string">"params"</span>:&#123;</span><br><span class="line">                                <span class="string">"triggerid"</span>:triggerid,</span><br><span class="line">                                <span class="string">"status"</span>:number</span><br><span class="line">                             &#125;,</span><br><span class="line">                    <span class="string">"auth"</span>:session,</span><br><span class="line">                    <span class="string">"id"</span>:<span class="number">1</span>,</span><br><span class="line">            &#125;))</span><br><span class="line">            request.add_header(<span class="string">'Content-Type'</span>,<span class="string">'application/json'</span>)</span><br><span class="line">            response=urllib2.urlopen(request)</span><br><span class="line">            data=json.loads(response.read())</span><br><span class="line">            response.close()</span><br><span class="line">            <span class="built_in">print</span> data</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    session = get_auth()</span><br><span class="line">    change_triggerid(sys.argv[<span class="number">1</span>],sys.argv[<span class="number">2</span>],sys.argv[<span class="number">3</span>],session)</span><br></pre></td></tr></table></figure>
-<p>more_info: <a href="https://www.zabbix.com/documentation/2.2/manual/api/reference" target="_blank" rel="external">api_list</a></p>
+        <span itemprop="articleBody"><h1 id="一、简介">一、简介</h1><p><strong>超文本传输安全协议</strong>（英语：Hypertext Transfer Protocol Secure，缩写：HTTPS，也被称为HTTP over TLS，HTTP over SSL或HTTP Secure）是一种网络安全传输协议。在计算机网络上，HTTPS经由超文本传输协议进行通信，利用SSL/TLS来对数据包进行加密。HTTPS开发的主要目的，是提供对网络服务器的身份认证，保护交换数据的隐私与完整性。</p>
+<h4 id="1-配置ssl证书">1.配置ssl证书</h4><p>安装openssl<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span>  openssl openssl-devel</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<p>生成证书<br><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#生成一个RSA秘钥输入密码</span></span><br><span class="line">openssl genrsa -des3 -out server.<span class="keyword">key</span> <span class="number">1024</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#生成一个不需要密码的秘钥</span></span><br><span class="line">openssl rsa -<span class="keyword">in</span> server.<span class="keyword">key</span> -out server_nopass.<span class="keyword">key</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#生成一个证书请求</span></span><br><span class="line">[root@localhost ssl_conf]<span class="preprocessor"># openssl req -new -key server.key -out server.csr</span></span><br><span class="line">Enter pass phrase <span class="keyword">for</span> server.<span class="keyword">key</span>:           <span class="preprocessor">#输入创建秘钥时的密码</span></span><br><span class="line">You are about <span class="keyword">to</span> be asked <span class="keyword">to</span> enter information that will be incorporated</span><br><span class="line"><span class="keyword">into</span> your certificate request.</span><br><span class="line">What you are about <span class="keyword">to</span> enter <span class="keyword">is</span> what <span class="keyword">is</span> called a Distinguished Name <span class="keyword">or</span> a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line"><span class="keyword">For</span> some fields there will be a <span class="keyword">default</span> value,</span><br><span class="line"><span class="keyword">If</span> you enter <span class="comment">'.', the field will be left blank.</span></span><br><span class="line">-----</span><br><span class="line">Country Name (<span class="number">2</span> letter code) [XX]:CN            <span class="preprocessor">#在哪个国家</span></span><br><span class="line">State <span class="keyword">or</span> Province Name (full name) []:beijing   <span class="preprocessor">#省会</span></span><br><span class="line">Locality Name (eg, city) [<span class="keyword">Default</span> City]:beijing   <span class="preprocessor">#城市</span></span><br><span class="line">Organization Name (eg, company) [<span class="keyword">Default</span> Company Ltd]:your_company_name  <span class="preprocessor">#组织名称</span></span><br><span class="line">Organizational Unit Name (eg, section) []:ops       <span class="preprocessor">#部门名称</span></span><br><span class="line">Common Name (eg, your name <span class="keyword">or</span> your server<span class="comment">'s hostname) []:server_name   #域名</span></span><br><span class="line">Email Address []:email_address         <span class="preprocessor">#邮箱地址</span></span><br><span class="line"></span><br><span class="line">Please enter the following <span class="comment">'extra' attributes</span></span><br><span class="line"><span class="keyword">to</span> be sent <span class="keyword">with</span> your certificate request</span><br><span class="line">A challenge password []:passwd</span><br><span class="line">An <span class="keyword">optional</span> company name []:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#给签发证书（一般是需要在CA部门购买证书，这里就自己给自己签发证书了）</span></span><br><span class="line">openssl x509 -req -days <span class="number">365</span> -<span class="keyword">in</span> server.csr -signkey server.<span class="keyword">key</span> -out server.crt</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-nginx配置">2.nginx配置</h4><p>将http请求重定向到https<br>编辑nginx配置文件nginx.conf添加如下配置<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen <span class="number">80</span>;</span><br><span class="line">    listen <span class="number">443</span> default_server ssl;</span><br><span class="line"></span><br><span class="line">    server_name     <span class="variable">$server</span>_name;</span><br><span class="line">    root            <span class="variable">$document</span>_root;</span><br><span class="line">    access_log      <span class="variable">$log</span>_path;</span><br><span class="line">    index           index.shtml index.html index.php;</span><br><span class="line"></span><br><span class="line">    ssl                            on;</span><br><span class="line">    ssl_certificate                /usr/local/nginx/ssl_conf/server.crt;</span><br><span class="line">    ssl_certificate_key            /usr/local/nginx/ssl_conf/server_nopass.key;</span><br><span class="line">    ssl_session_timeout            <span class="number">5</span>m;</span><br><span class="line">    ssl_protocols                  SSLv3 TLSv1;</span><br><span class="line">    ssl_ciphers                    HIGH:!ADH:!EXPORT56:RC4+RSA:+MEDIUM;</span><br><span class="line">    ssl_prefer_server_ciphers      on;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        if (<span class="variable">$ssl</span>_protocol = <span class="string">""</span>) &#123;   # 检测协议是否为ssl 如果不是如重定向到https</span><br><span class="line">             return <span class="number">301</span> https://<span class="variable">$server</span>_name<span class="variable">$request</span>_uri;   </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>重启nginx就可以通过https访问了<br>或者使用这种http和https共存的<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line"></span><br><span class="line">    <span class="title">server_name</span>     <span class="variable">$server_name</span>;</span><br><span class="line">    <span class="title">root</span>            <span class="variable">$document_root</span>;</span><br><span class="line">    <span class="title">access_log</span>      <span class="variable">$log_path</span>;</span><br><span class="line">    <span class="title">index</span>           index.shtml index.html index.php;</span><br><span class="line"></span><br><span class="line">    <span class="title">location</span> / &#123;</span><br><span class="line">            <span class="title">return</span> <span class="number">301</span> <span class="url">https://<span class="variable">$server_name</span><span class="variable">$request_uri</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">##########</span></span><br><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span>;</span><br><span class="line"></span><br><span class="line">    <span class="title">server_name</span>     <span class="variable">$server_name</span>;</span><br><span class="line">    <span class="title">root</span>            <span class="variable">$document_root</span>;</span><br><span class="line">    <span class="title">access_log</span>      <span class="variable">$log_path</span>;</span><br><span class="line">    <span class="title">index</span>           index.shtml index.html index.php;</span><br><span class="line"></span><br><span class="line">    <span class="title">ssl</span>                            <span class="built_in">on</span>;</span><br><span class="line">    <span class="title">ssl_certificate</span>                /usr/local/nginx/ssl_conf/server.crt;</span><br><span class="line">    <span class="title">ssl_certificate_key</span>            /usr/local/nginx/ssl_conf/server_nopass.key;</span><br><span class="line">    <span class="title">ssl_session_timeout</span>            <span class="number">5m</span>;</span><br><span class="line">    <span class="title">ssl_protocols</span>                  SSLv3 TLSv1;</span><br><span class="line">    <span class="title">ssl_ciphers</span>                    HIGH:!ADH:!EXPORT56:RC4+RSA:+MEDIUM;</span><br><span class="line">    <span class="title">ssl_prefer_server_ciphers</span>      <span class="built_in">on</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>参考地址: <a href="http://serverfault.com/questions/250476/how-to-force-or-redirect-to-ssl-in-nginx" target="_blank" rel="external">http://serverfault.com/questions/250476/how-to-force-or-redirect-to-ssl-in-nginx</a><br><a href="https://bjornjohansen.no/redirect-to-https-with-nginx" target="_blank" rel="external">https://bjornjohansen.no/redirect-to-https-with-nginx</a></p>
 </span>
       
     </div>
@@ -301,11 +303,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/api/" rel="tag">#api</a>
-          
-            <a href="/tags/python/" rel="tag">#python</a>
-          
-            <a href="/tags/zabbix/" rel="tag">#zabbix</a>
+            <a href="/tags/nginx/" rel="tag">#nginx</a>
           
         </div>
       
@@ -314,13 +312,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2016/07/19/zabbix3.0_install/" rel="next" title="Zabbix 3.0安装部署">
+                <i class="fa fa-chevron-left"></i> Zabbix 3.0安装部署
+              </a>
+            
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2015/10/19/Markdown/" rel="prev" title="Markdown简单使用">
-                Markdown简单使用 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -347,8 +345,8 @@
         
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2015/10/15/python_zabbix/"
-           data-title="python调用zabbix接口" data-url="http://siitao.cn/2015/10/15/python_zabbix/">
+      <div class="ds-thread" data-thread-key="2016/07/20/nginx_ssl_https/"
+           data-title="Nginx使用SSL部署HTTPS" data-url="http://siitao.cn/2016/07/20/nginx_ssl_https/">
       </div>
     
   </div>
@@ -456,7 +454,7 @@
               
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、简介"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-配置ssl证书"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.配置ssl证书</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-nginx配置"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">2.nginx配置</span></a></li></ol></li></ol></li></ol></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
